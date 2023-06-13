@@ -40,22 +40,20 @@ public class InstructorService {
         if (optionalInstructor.isPresent()) {
             Instructor existingInstructor = optionalInstructor.get();
             existingInstructor.setName(nameInstructor);
-           return repository.save(existingInstructor);
+            return repository.save(existingInstructor);
         }
         return null;
     }
 
     public Instructor completeUpdate(long id, Instructor updatedInstructor) {
         Optional<Instructor> optionalInstructor = repository.findById(id);
-        if(optionalInstructor.isPresent()) {
+        if (optionalInstructor.isPresent()) {
             Instructor existingInstructor = optionalInstructor.get();
             existingInstructor.setName(updatedInstructor.getName());
             existingInstructor.setLicenceNumber(updatedInstructor.getLicenceNumber());
             existingInstructor.setAge(updatedInstructor.getAge());
             existingInstructor.setTrainingType(updatedInstructor.getTrainingType());
-
-            repository.save(existingInstructor);
-        return existingInstructor;
+            return repository.save(existingInstructor);
         }
         return null;
     }
