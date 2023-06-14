@@ -45,7 +45,7 @@ public class InstructorService {
         return null;
     }
 
-    public Instructor completeUpdate(long id, Instructor updatedInstructor) {
+    public Optional<Instructor> completeUpdate(long id, Instructor updatedInstructor) {
         Optional<Instructor> optionalInstructor = repository.findById(id);
         if (optionalInstructor.isPresent()) {
             Instructor existingInstructor = optionalInstructor.get();
@@ -53,8 +53,8 @@ public class InstructorService {
             existingInstructor.setLicenceNumber(updatedInstructor.getLicenceNumber());
             existingInstructor.setAge(updatedInstructor.getAge());
             existingInstructor.setTrainingType(updatedInstructor.getTrainingType());
-            return repository.save(existingInstructor);
+            return Optional.of(repository.save(existingInstructor));
         }
-        return null;
+        return Optional.empty(); //najlepiej żeby nie zwracać null, drugie rozwiązanie wyjątek
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/instructors")
 public class InstructorController {
@@ -34,6 +36,11 @@ public class InstructorController {
         return instructorService.getAllInstructors();
     }
 
+    @GetMapping("/{id}")
+    public Optional<Instructor> getInstructorById(@PathVariable Long id){
+       return instructorService.getInstructorById(id);
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<Instructor> putInstructor(@PathVariable long id, @RequestBody String name) {
         Instructor updatedInstructor = instructorService.update(id, name);
@@ -45,8 +52,8 @@ public class InstructorController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateInstructor(@PathVariable Long id, @RequestBody Instructor updatedInstructor) {
-        Instructor updated = instructorService.completeUpdate(id, updatedInstructor);
-        if (updated != null) {
+        Optional<Instructor> updated = instructorService.completeUpdate(id, updatedInstructor);
+        if (updated.isPresent()) {
             return ResponseEntity.ok("Instructor updated successfully");
         } else {
             return ResponseEntity.notFound().build();

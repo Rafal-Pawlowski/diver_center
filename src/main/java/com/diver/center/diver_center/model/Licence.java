@@ -1,29 +1,31 @@
 package com.diver.center.diver_center.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table
 public class Licence {
 
     @Id
     @GeneratedValue
     private Long id;
+
+    @Column(unique = true)
     private int licenceNumber;
-    private Date dateOfRelease;
+    private LocalDate dateOfRelease;
     private String federation;
     private String level;
 
-    public Licence(int licenceNumber, Date dateOfRelease, String federation, String level) {
+    public Licence(int licenceNumber, LocalDate dateOfRelease, String federation, String level) {
         this.licenceNumber = licenceNumber;
         this.dateOfRelease = dateOfRelease;
         this.federation = federation;
