@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -24,6 +25,9 @@ public class Licence {
     private LocalDate dateOfRelease;
     private String federation;
     private String level;
+
+    @OneToOne(mappedBy = "licence")
+    private Instructor instructor;
 
     public Licence(int licenceNumber, LocalDate dateOfRelease, String federation, String level) {
         this.licenceNumber = licenceNumber;

@@ -50,6 +50,19 @@ public class InstructorController {
                 .body(updatedInstructor);
     }
 
+    @PatchMapping("/{instructorId}/setLicence/{licenceId}")
+    public ResponseEntity<Optional<Instructor>> setLicenceToInstructor(@PathVariable long instructorId, @PathVariable long licenceId){
+        Optional<Instructor> optionalInstructor =  instructorService.setLicence(instructorId, licenceId);
+        if (optionalInstructor.isPresent()) {
+            LOGGER.info("{} updated", optionalInstructor);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(optionalInstructor);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateInstructor(@PathVariable Long id, @RequestBody Instructor updatedInstructor) {
         Optional<Instructor> updated = instructorService.completeUpdate(id, updatedInstructor);

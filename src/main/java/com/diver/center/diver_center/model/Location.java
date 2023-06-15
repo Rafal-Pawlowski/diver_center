@@ -3,9 +3,12 @@ package com.diver.center.diver_center.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +23,9 @@ public class Location  {
     private String type;
     private int maxDepth;
     private String difficultyLevel;
+
+//    @ManyToMany(mappedBy = "location")
+//    private List<Instructor> instructor;
 
     public Location(String name, String type, int maxDepth, String difficultyLevel) {
         this.name = name;

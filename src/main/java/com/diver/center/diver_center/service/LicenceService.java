@@ -31,6 +31,7 @@ public class LicenceService {
         return repository.findById(id);
     }
 
+
     public void removeById(long id) {
         repository.deleteById(id);
     }
