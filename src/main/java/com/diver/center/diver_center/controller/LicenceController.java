@@ -45,6 +45,7 @@ public class LicenceController {
         if (licenceService.getById(id).isEmpty()){
             return ResponseEntity.notFound().build();
         } else {
+            LOGGER.info("YOU CANNOT DELETE LICENCE ATTACHED TO INSTRUCTOR");
             licenceService.removeById(id);
             return ResponseEntity.noContent().build();
         }

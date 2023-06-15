@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import java.util.List;
+
+import static org.hibernate.annotations.CascadeType.DETACH;
 
 @Data
 @NoArgsConstructor
@@ -14,12 +18,12 @@ import java.util.List;
 public class Instructor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "instructor_id")
     private Long id;
     private String name;
 
-    @OneToOne
+    @OneToOne(cascade = {jakarta.persistence.CascadeType.DETACH, jakarta.persistence.CascadeType.REMOVE})
     @JoinColumn(name = "licence_id")
     private Licence licence;
 

@@ -67,7 +67,8 @@ public class InstructorService {
         if (optionalInstructor.isPresent() && optionalLicence.isPresent()){
             Instructor updatedInstructor = optionalInstructor.get();
             updatedInstructor.setLicence(optionalLicence.get());
-            return Optional.of(updatedInstructor);
+
+            return Optional.of(repository.save(updatedInstructor));
         } else {
             return Optional.empty();
         }

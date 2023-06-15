@@ -1,5 +1,6 @@
 package com.diver.center.diver_center.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +28,8 @@ public class Licence {
     private String level;
 
     @OneToOne(mappedBy = "licence")
+    @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
+    @JsonIgnore
     private Instructor instructor;
 
     public Licence(int licenceNumber, LocalDate dateOfRelease, String federation, String level) {
