@@ -75,12 +75,15 @@ public class InstructorController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInstructor(@PathVariable long id) {
-        if (instructorService.getInstructorById(id).isEmpty()) {
+        Optional<Instructor> instructorById = instructorService.getInstructorById(id);
+        if (instructorById.isEmpty()) {
             return ResponseEntity.notFound().build();
-        } else {
-            instructorService.removeById(id);
-            return ResponseEntity.noContent().build();
+        } else if(instructorById.get().getLicence()!=null){
+            instructorService.detachLicenceFromInstructor(id);
+//            ResponseEntity.noContent().build();
         }
+        instructorService.removeById(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

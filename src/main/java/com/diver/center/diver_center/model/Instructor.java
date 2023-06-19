@@ -23,7 +23,7 @@ public class Instructor {
     private Long id;
     private String name;
 
-    @OneToOne(cascade = {jakarta.persistence.CascadeType.DETACH, jakarta.persistence.CascadeType.REMOVE})
+    @OneToOne(cascade = jakarta.persistence.CascadeType.DETACH)
     @JoinColumn(name = "licence_id")
     private Licence licence;
 

@@ -64,7 +64,7 @@ public class InstructorService {
     public Optional<Instructor> setLicence(long instructorId, long licenceId) {
         Optional<Instructor> optionalInstructor = getInstructorById(instructorId);
         Optional<Licence> optionalLicence = licenceService.getById(licenceId);
-        if (optionalInstructor.isPresent() && optionalLicence.isPresent()){
+        if (optionalInstructor.isPresent() && optionalLicence.isPresent()) {
             Instructor updatedInstructor = optionalInstructor.get();
             updatedInstructor.setLicence(optionalLicence.get());
 
@@ -72,9 +72,15 @@ public class InstructorService {
         } else {
             return Optional.empty();
         }
-
-
     }
 
-
+    public Optional<Instructor> detachLicenceFromInstructor(long instructorId) {
+        Optional<Instructor> optionalInstructor = getInstructorById(instructorId);
+        if (repository.existsById(instructorId)) {
+            Instructor instructorWithLicence = optionalInstructor.get();
+            instructorWithLicence.setLicence(null);
+            return Optional.of(repository.save(instructorWithLicence));
+        }
+        return Optional.empty();
+    }
 }
