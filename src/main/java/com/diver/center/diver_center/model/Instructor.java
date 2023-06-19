@@ -23,7 +23,7 @@ public class Instructor {
     private Long id;
     private String name;
 
-    @OneToOne(cascade = jakarta.persistence.CascadeType.DETACH)
+    @OneToOne(cascade = jakarta.persistence.CascadeType.DETACH) // dodac pozostałe CascadeTypy oprócz delete
     @JoinColumn(name = "licence_id")
     private Licence licence;
 

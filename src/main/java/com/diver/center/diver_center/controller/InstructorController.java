@@ -2,6 +2,7 @@ package com.diver.center.diver_center.controller;
 
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.service.InstructorService;
+import com.diver.center.diver_center.service.LicenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,10 +17,12 @@ public class InstructorController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstructorController.class);
 
-    private InstructorService instructorService;
+    private final InstructorService instructorService;
+    private  final LicenceService licenceService;
 
-    public InstructorController(InstructorService instructorService) {
+    public InstructorController(InstructorService instructorService, LicenceService licenceService) {
         this.instructorService = instructorService;
+        this.licenceService = licenceService;
     }
 
     @PostMapping
@@ -79,8 +82,8 @@ public class InstructorController {
         if (instructorById.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else if(instructorById.get().getLicence()!=null){
-            instructorService.detachLicenceFromInstructor(id);
-//            ResponseEntity.noContent().build();
+            licenceService.detachInstructorFromLicence(instructorById.get().getLicence().getId());
+
         }
         instructorService.removeById(id);
         return ResponseEntity.noContent().build();

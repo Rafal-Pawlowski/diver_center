@@ -48,13 +48,13 @@ public class LicenceService {
         }
         return Optional.empty();
     }
-//    public Optional<Licence> detachInstructorFromLicence(long licenceId) {
-//        Optional <Licence> optionalLicence = repository.findById(licenceId);
-//        if(repository.existsById(licenceId)){
-//            Licence licenceToDetach = optionalLicence.get();
-//            licenceToDetach.setInstructor(null);
-//            return Optional.of(repository.save(licenceToDetach));
-//        }
-//        return Optional.empty();
-//    }
+    public Optional<Licence> detachInstructorFromLicence(long licenceId) {
+        Optional <Licence> optionalLicence = repository.findById(licenceId);
+        if(repository.existsById(licenceId)){
+            Licence licenceToDetach = optionalLicence.get();
+            licenceToDetach.setInstructor(null);
+            return Optional.of(repository.save(licenceToDetach));
+        }
+        return Optional.empty();
+    }
 }

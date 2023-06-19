@@ -74,6 +74,7 @@ public class InstructorService {
         }
     }
 
+    //tu zapisać licencje zamiast zapisywać instruktora
     public Optional<Instructor> detachLicenceFromInstructor(long instructorId) {
         Optional<Instructor> optionalInstructor = getInstructorById(instructorId);
         if (repository.existsById(instructorId)) {
