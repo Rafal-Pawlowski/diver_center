@@ -5,10 +5,12 @@ import com.diver.center.diver_center.service.InstructorService;
 import com.diver.center.diver_center.service.LicenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -87,6 +89,10 @@ public class InstructorController {
         }
         instructorService.removeById(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/querry/{name}")
+    public List<Instructor> querryFindInstructorByContainingName(@PathVariable String name){
+        return instructorService.querryInstructorFindByName(name);
     }
 }
 
