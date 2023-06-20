@@ -2,7 +2,9 @@ package com.diver.center.diver_center.service;
 
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
+import com.diver.center.diver_center.model.Trainee;
 import com.diver.center.diver_center.repository.InstructorRepository;
+import com.diver.center.diver_center.repository.TraineeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,12 @@ public class InstructorService {
 
     private final InstructorRepository repository;
     private final LicenceService licenceService;
+    private final TraineeRepository traineeRepository;
 
-    public InstructorService(InstructorRepository repository, LicenceService licenceService) {
+    public InstructorService(InstructorRepository repository, LicenceService licenceService, TraineeRepository traineeRepository) {
         this.repository = repository;
         this.licenceService = licenceService;
+        this.traineeRepository = traineeRepository;
     }
 
     public Instructor save(Instructor instructor) {
@@ -86,7 +90,33 @@ public class InstructorService {
         return Optional.empty();
     }
 
+    public Optional<Instructor> detachTraineesFromInstructor(long instructorId) {
+        Optional<Instructor> optionalInstructor = getInstructorById(instructorId);
+        if (optionalInstructor.isPresent()) {
+            Instructor instructor = optionalInstructor.get();
+            instructor.setTrainees(null);
+            return Optional.of(repository.save(instructor));
+        }
+        return Optional.empty();
+    }
+
+
+
     public List<Instructor> querryInstructorFindByName(String name) {
         return repository.findAllByNameContaining(name);
+    }
+
+    public Instructor addTraineeToInstructor(long instructorId, long traineeId) {
+        if (repository.existsById(instructorId) && traineeRepository.existsById(traineeId)) {
+            Optional<Instructor> optionalInstructor = repository.findById(instructorId);
+            Optional<Trainee> optionalTrainee = traineeRepository.findById(traineeId);
+            Instructor instructor = optionalInstructor.get();
+            Trainee trainee = optionalTrainee.get();
+            trainee.setInstructor(instructor);
+            traineeRepository.save(trainee);
+
+            return instructor;
+        }
+        return null;
     }
 }

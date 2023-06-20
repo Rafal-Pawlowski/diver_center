@@ -43,18 +43,29 @@ public class TraineeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTrainee(@PathVariable long id, @RequestBody Trainee updatedTrainee){
+    public ResponseEntity<String> updateTrainee(@PathVariable long id, @RequestBody Trainee updatedTrainee) {
         Optional<Trainee> updated = service.update(id, updatedTrainee);
-        if(updated.isPresent()){
+        if (updated.isPresent()) {
             return ResponseEntity.ok("Trainee updated Successfully");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
+    @PatchMapping("/detachInstructor/{traineeId}")
+    public ResponseEntity<String> detachInstructor(@PathVariable long traineeId) {
+        Optional<Trainee> optionalTrainee = service.detachInstructor(traineeId);
+        if (optionalTrainee.isPresent()) {
+            return ResponseEntity.ok("Instructor detached from Trainee");
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTraineeById(@PathVariable long id){
-        if(service.getById(id).isEmpty()){
+    public ResponseEntity<Void> deleteTraineeById(@PathVariable long id) {
+        if (service.getById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
             service.deleteById(id);

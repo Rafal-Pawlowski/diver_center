@@ -3,9 +3,9 @@ package com.diver.center.diver_center.controller;
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.service.InstructorService;
 import com.diver.center.diver_center.service.LicenceService;
+import com.diver.center.diver_center.service.TraineeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +20,13 @@ public class InstructorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(InstructorController.class);
 
     private final InstructorService instructorService;
-    private  final LicenceService licenceService;
+    private final LicenceService licenceService;
+    private final TraineeService traineeService;
 
-    public InstructorController(InstructorService instructorService, LicenceService licenceService) {
+    public InstructorController(InstructorService instructorService, LicenceService licenceService, TraineeService traineeService) {
         this.instructorService = instructorService;
         this.licenceService = licenceService;
+        this.traineeService = traineeService;
     }
 
     @PostMapping
@@ -42,8 +44,8 @@ public class InstructorController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Instructor> getInstructorById(@PathVariable Long id){
-       return instructorService.getInstructorById(id);
+    public Optional<Instructor> getInstructorById(@PathVariable Long id) {
+        return instructorService.getInstructorById(id);
     }
 
     @PatchMapping("/{id}")
@@ -56,13 +58,25 @@ public class InstructorController {
     }
 
     @PatchMapping("/{instructorId}/setLicence/{licenceId}")
-    public ResponseEntity<Optional<Instructor>> setLicenceToInstructor(@PathVariable long instructorId, @PathVariable long licenceId){
-        Optional<Instructor> optionalInstructor =  instructorService.setLicence(instructorId, licenceId);
+    public ResponseEntity<Optional<Instructor>> setLicenceToInstructor(@PathVariable long instructorId, @PathVariable long licenceId) {
+        Optional<Instructor> optionalInstructor = instructorService.setLicence(instructorId, licenceId);
         if (optionalInstructor.isPresent()) {
             LOGGER.info("{} updated", optionalInstructor);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(optionalInstructor);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("/instructorChoice/{instructorId}/{traineeId}")
+    public ResponseEntity<Instructor> addTraineeToInstructorTraineeList(@PathVariable long instructorId, @PathVariable long traineeId) {
+        if (instructorService.getInstructorById(instructorId).isPresent() && traineeService.getById(traineeId).isPresent()) {
+            Instructor instructor = instructorService.addTraineeToInstructor(instructorId, traineeId);
+            LOGGER.info("{} updated", instructor);
+            return ResponseEntity
+                    .status(HttpStatus.ACCEPTED)
+                    .body(instructor);
         }
         return ResponseEntity.notFound().build();
     }
@@ -83,15 +97,15 @@ public class InstructorController {
         Optional<Instructor> instructorById = instructorService.getInstructorById(id);
         if (instructorById.isEmpty()) {
             return ResponseEntity.notFound().build();
-        } else if(instructorById.get().getLicence()!=null){
+        } else if (instructorById.get().getLicence() != null) {
             licenceService.detachInstructorFromLicence(instructorById.get().getLicence().getId());
-
         }
         instructorService.removeById(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/querry/{name}")
-    public List<Instructor> querryFindInstructorByContainingName(@PathVariable String name){
+    public List<Instructor> querryFindInstructorByContainingName(@PathVariable String name) {
         return instructorService.querryInstructorFindByName(name);
     }
 }

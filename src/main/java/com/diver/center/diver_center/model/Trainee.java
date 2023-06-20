@@ -1,11 +1,18 @@
 package com.diver.center.diver_center.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+
+
+import static jakarta.persistence.CascadeType.*;
+import static org.hibernate.annotations.CascadeType.*;
+import static org.hibernate.annotations.CascadeType.DETACH;
+import static org.hibernate.annotations.CascadeType.MERGE;
+import static org.hibernate.annotations.CascadeType.PERSIST;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +27,12 @@ public class Trainee {
     private int age;
     private String gender;
     private String language;
+
+    @ManyToOne
+    @JsonIgnore
+    @Cascade({DETACH, MERGE, PERSIST})
+    @JoinColumn(name = "instructorId")
+    private Instructor instructor;
 
     public Trainee(String name, int age, String gender, String language) {
         this.name = name;

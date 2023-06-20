@@ -1,5 +1,6 @@
 package com.diver.center.diver_center.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +10,7 @@ import org.hibernate.annotations.CascadeType;
 
 import java.util.List;
 
-import static org.hibernate.annotations.CascadeType.DETACH;
+import static org.hibernate.annotations.CascadeType.*;
 
 @Data
 @NoArgsConstructor
@@ -29,6 +30,10 @@ public class Instructor {
 
     private int age;
     private List<String> trainingType;
+
+    @OneToMany(mappedBy = "instructor")
+    @Cascade({DETACH, PERSIST, MERGE})
+    List<Trainee> trainees;
 
     public Instructor(String name, Licence licenceNumber, int age, List<String> trainingType) {
         this.name = name;

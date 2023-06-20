@@ -44,6 +44,16 @@ public class TraineeService {
         return Optional.empty();
     }
 
+    public Optional<Trainee> detachInstructor(long traineeId) {
+        Optional<Trainee> optionalTrainee = getById(traineeId);
+        if (repository.existsById(traineeId)) {
+            Trainee trainee = optionalTrainee.get();
+            trainee.setInstructor(null);
+            return Optional.of(repository.save(trainee));
+        }
+        return Optional.empty();
+    }
+
     public void deleteById(long id){
         repository.deleteById(id);
     }
