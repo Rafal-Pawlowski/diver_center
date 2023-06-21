@@ -19,7 +19,7 @@ import static org.hibernate.annotations.CascadeType.*;
 public class Instructor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "instructor_id")
     private Long id;
     private String name;

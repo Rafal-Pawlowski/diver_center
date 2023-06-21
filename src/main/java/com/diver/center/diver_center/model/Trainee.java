@@ -21,7 +21,7 @@ import static org.hibernate.annotations.CascadeType.PERSIST;
 public class Trainee {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int age;

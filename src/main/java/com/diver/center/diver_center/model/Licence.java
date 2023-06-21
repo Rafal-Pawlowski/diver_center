@@ -18,7 +18,7 @@ import java.util.Date;
 public class Licence {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)

@@ -84,6 +84,8 @@ public class InstructorController {
         return ResponseEntity.notFound().build();
     }
 
+    //metoda która odpina wszystkich kursantów od instruktora
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateInstructor(@PathVariable Long id, @RequestBody Instructor updatedInstructor) {
@@ -110,8 +112,8 @@ public class InstructorController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/querry/{name}")
-    public List<Instructor> querryFindInstructorByContainingName(@PathVariable String name) {
+    @GetMapping("/querry")
+    public List<Instructor> querryFindInstructorByContainingName(@RequestParam("name") String name) {
         return instructorService.querryInstructorFindByName(name);
     }
 }
