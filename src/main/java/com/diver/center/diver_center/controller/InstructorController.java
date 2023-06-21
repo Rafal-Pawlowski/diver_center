@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,16 @@ public class InstructorController {
     }
 
     //metoda która odpina wszystkich kursantów od instruktora
-
+    @PatchMapping("/removeAllTrainees/{instructorId}")
+    public ResponseEntity<String> allTraineesRemoval(@PathVariable long instructorId) {
+        Optional<Instructor> optionalInstructor = instructorService.getInstructorById(instructorId);
+        if (optionalInstructor.isPresent() && !optionalInstructor.get().getTrainees().isEmpty()) {
+            Instructor instructor = optionalInstructor.get();
+            instructorService.detachTraineesFromInstructor(instructorId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Trainees removed from list");
+        }
+        return ResponseEntity.notFound().build();
+    }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateInstructor(@PathVariable Long id, @RequestBody Instructor updatedInstructor) {
@@ -103,7 +113,7 @@ public class InstructorController {
         if (instructorById.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else if (!instructorById.get().getTrainees().isEmpty()) {
-          throw new AttachedException("Cannot Delete Instructor that has trainees, please first detach all trainees");
+            throw new AttachedException("Cannot Delete Instructor that has trainees, please first detach all trainees");
 
         } else if (instructorById.get().getLicence() != null) {
             licenceService.detachInstructorFromLicence(instructorById.get().getLicence().getId());
