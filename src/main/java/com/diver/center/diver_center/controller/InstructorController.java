@@ -1,9 +1,11 @@
 package com.diver.center.diver_center.controller;
 
+import com.diver.center.diver_center.exception_handler.AttachedException;
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.service.InstructorService;
 import com.diver.center.diver_center.service.LicenceService;
 import com.diver.center.diver_center.service.TraineeService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/instructors")
@@ -97,6 +100,9 @@ public class InstructorController {
         Optional<Instructor> instructorById = instructorService.getInstructorById(id);
         if (instructorById.isEmpty()) {
             return ResponseEntity.notFound().build();
+        } else if (!instructorById.get().getTrainees().isEmpty()) {
+          throw new AttachedException("Cannot Delete Instructor that has trainees, please first detach all trainees");
+
         } else if (instructorById.get().getLicence() != null) {
             licenceService.detachInstructorFromLicence(instructorById.get().getLicence().getId());
         }
