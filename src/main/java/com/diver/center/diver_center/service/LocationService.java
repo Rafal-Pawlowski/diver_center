@@ -1,11 +1,11 @@
 package com.diver.center.diver_center.service;
 
+import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Location;
+import com.diver.center.diver_center.repository.InstructorRepository;
 import com.diver.center.diver_center.repository.LocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,9 +16,11 @@ public class LocationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
 
     private final LocationRepository repository;
+    private final InstructorRepository instructorRepository;
 
-    public LocationService(LocationRepository repository) {
+    public LocationService(LocationRepository repository, InstructorRepository instructorRepository) {
         this.repository = repository;
+        this.instructorRepository = instructorRepository;
     }
 
     public Location save(Location location) {
@@ -48,6 +50,29 @@ public class LocationService {
             return Optional.empty();
         }
     }
+    public Optional<Location> addInstructorToLocation(long instructorId, long locationId){
+        Optional<Instructor> optionalInstructor = instructorRepository.findById(instructorId);
+        Optional<Location> optionalLocation = repository.findById(locationId);
+        if(optionalLocation.isPresent()&& optionalInstructor.isPresent()){
+            Instructor instructor = optionalInstructor.get();
+            Location location = optionalLocation.get();
+            location.addInstructorSet(instructor);
+            return Optional.of(repository.save(location));
+        }
+        return Optional.empty();
+    }
+    public Optional<Location> deleteInstructorFromLocation(long instructorId, long locationId){
+        Optional<Instructor> optionalInstructor = instructorRepository.findById(instructorId);
+        Optional<Location> optionalLocation = repository.findById(locationId);
+        if(optionalLocation.isPresent()&& optionalInstructor.isPresent()){
+            Instructor instructor = optionalInstructor.get();
+            Location location = optionalLocation.get();
+            location.removeInstructorSet(instructor);
+            return Optional.of(repository.save(location));
+        }
+        return Optional.empty();
+    }
+
 
     public void deleteById(long id) {
         repository.deleteById(id);

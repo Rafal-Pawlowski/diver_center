@@ -1,6 +1,7 @@
 package com.diver.center.diver_center.controller;
 
 import com.diver.center.diver_center.model.Location;
+import com.diver.center.diver_center.repository.InstructorRepository;
 import com.diver.center.diver_center.service.LocationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,12 @@ public class LocationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationController.class);
 
     private final LocationService service;
+    private final InstructorRepository instructorRepository;
 
-    public LocationController(LocationService service) {
+
+    public LocationController(LocationService service, InstructorRepository instructorRepository) {
         this.service = service;
+        this.instructorRepository = instructorRepository;
     }
 
     @PostMapping
@@ -51,10 +55,34 @@ public class LocationController {
         }
     }
 
+    @PatchMapping("/instructorToLocation")
+    public ResponseEntity<String> setInstructorToLocationMethod
+            (@RequestParam("instructorId") long instructorId, @RequestParam("locationId") long locationId) {
+
+        if (instructorRepository.existsById(instructorId) && getLocationsById(locationId).isPresent()) {
+            service.addInstructorToLocation(instructorId, locationId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Instructor set to Location");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+    @PatchMapping("/outInstructorOfLocation")
+    public ResponseEntity<String> InstructorOutOfLocationMethod
+            (@RequestParam("instructorId") long instructorId, @RequestParam("locationId") long locationId) {
+
+        if (instructorRepository.existsById(instructorId) && getLocationsById(locationId).isPresent()) {
+            service.deleteInstructorFromLocation(instructorId, locationId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Instructor took out of Location");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable long id) {
         if (service.getById(id).isEmpty()) {
-           return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         } else {
             service.deleteById(id);
             return ResponseEntity.noContent().build();

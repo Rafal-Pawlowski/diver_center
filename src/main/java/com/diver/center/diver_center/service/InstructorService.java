@@ -2,14 +2,15 @@ package com.diver.center.diver_center.service;
 
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
+import com.diver.center.diver_center.model.Location;
 import com.diver.center.diver_center.model.Trainee;
 import com.diver.center.diver_center.repository.InstructorRepository;
+import com.diver.center.diver_center.repository.LocationRepository;
 import com.diver.center.diver_center.repository.TraineeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +22,13 @@ public class InstructorService {
     private final InstructorRepository repository;
     private final LicenceService licenceService;
     private final TraineeRepository traineeRepository;
+    private final LocationRepository locationRepository;
 
-    public InstructorService(InstructorRepository repository, LicenceService licenceService, TraineeRepository traineeRepository) {
+    public InstructorService(InstructorRepository repository, LicenceService licenceService, TraineeRepository traineeRepository, LocationRepository locationRepository) {
         this.repository = repository;
         this.licenceService = licenceService;
         this.traineeRepository = traineeRepository;
+        this.locationRepository = locationRepository;
     }
 
     public Instructor save(Instructor instructor) {
@@ -124,4 +127,16 @@ public class InstructorService {
         }
         return null;
     }
+//TA METODA MOZE BEDZIE NIEPOTRZEBNA, POTRZEBNA ZAWARTA W LOCATIONSERVICE
+//    public Optional<Instructor> addLocationToInstructorSet(long instructorId, long locationId){
+//        Optional<Instructor> optionalInstructor = repository.findById(instructorId);
+//        Optional<Location> optionalLocation = locationRepository.findById(locationId);
+//        if (optionalInstructor.isPresent() && optionalLocation.isPresent()){
+//            Instructor instructor = optionalInstructor.get();
+//            Location location = optionalLocation.get();
+//            instructor.setLocations(location);
+//        }
+//
+//    }
+
 }
