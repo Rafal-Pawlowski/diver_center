@@ -102,7 +102,24 @@ class InstructorServiceTest {
     }
 
     @Test
-    void completeUpdate() {
+    void shouldCompleteUpdateInstructor() {
+        long instructorId = 3;
+        Instructor existingInstructor = new Instructor("Juan Antonio Morales", null, 38, List.of("Cave", "Wrecks"));
+        Instructor updatedInstructor = new Instructor("Updated Instructor", null, 25, List.of("Wrecks", "Fish", "Sharks"));
+
+        Optional<Instructor> optionalInstructor = Optional.of(existingInstructor);
+
+        when(instructorRepository.findById(instructorId)).thenReturn(optionalInstructor);
+        when(instructorRepository.save(existingInstructor)).thenReturn(updatedInstructor);
+
+        Optional<Instructor> result = instructorService.completeUpdate(instructorId, updatedInstructor);
+
+        verify(instructorRepository, times(1)).findById(instructorId);
+        verify(instructorRepository, times(1)).save(existingInstructor);
+
+        assertTrue(result.isPresent());
+        assertEquals(updatedInstructor, result.get());
+        assertEquals(updatedInstructor.getId(), result.get().getId());
     }
 
     @Test
