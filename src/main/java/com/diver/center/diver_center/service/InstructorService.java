@@ -83,7 +83,6 @@ public class InstructorService {
         }
     }
 
-    //tu zapisać licencje zamiast zapisywać instruktora
     public Optional<Instructor> detachLicenceFromInstructor(long instructorId) {
         Optional<Instructor> optionalInstructor = getInstructorById(instructorId);
         if (repository.existsById(instructorId)) {
@@ -127,16 +126,5 @@ public class InstructorService {
         }
         return null;
     }
-//TA METODA MOZE BEDZIE NIEPOTRZEBNA, POTRZEBNA ZAWARTA W LOCATIONSERVICE
-//    public Optional<Instructor> addLocationToInstructorSet(long instructorId, long locationId){
-//        Optional<Instructor> optionalInstructor = repository.findById(instructorId);
-//        Optional<Location> optionalLocation = locationRepository.findById(locationId);
-//        if (optionalInstructor.isPresent() && optionalLocation.isPresent()){
-//            Instructor instructor = optionalInstructor.get();
-//            Location location = optionalLocation.get();
-//            instructor.setLocations(location);
-//        }
-//
-//    }
 
 }
