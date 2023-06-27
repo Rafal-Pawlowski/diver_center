@@ -1,19 +1,25 @@
 package com.diver.center.diver_center.service;
 
 import com.diver.center.diver_center.model.Instructor;
+import com.diver.center.diver_center.model.Licence;
 import com.diver.center.diver_center.repository.InstructorRepository;
+import com.diver.center.diver_center.repository.LicenceRepository;
+import com.diver.center.diver_center.repository.TraineeRepository;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import net.minidev.json.writer.FakeMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +34,24 @@ class InstructorServiceTest {
     private InstructorService instructorService;
 
     @Mock
+    private LicenceService licenceService;
+
+    @Mock
     private InstructorRepository instructorRepository;
+
+    @Mock
+    private TraineeRepository traineeRepository;
 
     @BeforeEach
     void beforeTest() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        licenceService = Mockito.mock(LicenceService.class);
+        instructorService = new InstructorService(instructorRepository, licenceService, traineeRepository);
     }
 
     @Test
@@ -86,7 +105,7 @@ class InstructorServiceTest {
 
 
     @Test
-    void update() {
+    void shouldUpdateInstructorName() {
         long instructorId = 15;
         Instructor instructor = new Instructor("Ronaldo", null, 20, null);
         Optional<Instructor> optionalInstructor = Optional.of(instructor);
@@ -123,7 +142,28 @@ class InstructorServiceTest {
     }
 
     @Test
-    void setLicence() {
+    void shouldSetInstructorLicenceWhenObjectsProvided() {
+
+        long instructorId = 1;
+        long licenceId = 2;
+        Instructor instructorBeforeUpdate = new Instructor("Marjusz", null, 29, List.of("Rebreather instructorBeforeUpdate", "Wrecks"));
+        Licence licence = new Licence(29290, LocalDate.of(2020, 04, 20), "PADI", "Wrecks instructorBeforeUpdate");
+        Instructor instructorAfterUpdate = new Instructor("Marjusz", licence, 29, List.of("Rebreather instructorBeforeUpdate", "Wrecks"));
+
+        Optional<Instructor> optionalInstructor = Optional.of(instructorBeforeUpdate);
+        Optional<Licence> optionalLicence = Optional.of(licence);
+
+        when(instructorRepository.findById(instructorId)).thenReturn(optionalInstructor);
+        when(licenceService.getById(licenceId)).thenReturn(optionalLicence);
+        when(instructorRepository.save(instructorBeforeUpdate)).thenReturn(instructorAfterUpdate);
+
+        Optional<Instructor> result = instructorService.setLicence(instructorId, licenceId);
+
+        assertEquals(result.get().getLicence(), licence);
+
+//        verify(instructorRepository, times(1)).findById(instructorId);
+//        verify(licenceRepository, times(1)).getById(licenceId);
+
     }
 
     @Test
