@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -32,7 +31,7 @@ public class Licence {
     @JsonIgnore
     private Instructor instructor;
 
-    public Licence(int licenceNumber, LocalDate dateOfRelease, String federation, String level) {
+    public Licence(int licenceNumber, LocalDate dateOfRelease, String federation, String level, Object o) {
         this.licenceNumber = licenceNumber;
         this.dateOfRelease = dateOfRelease;
         this.federation = federation;

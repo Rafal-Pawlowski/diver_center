@@ -2,22 +2,14 @@ package com.diver.center.diver_center.service;
 
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
+import com.diver.center.diver_center.model.Trainee;
 import com.diver.center.diver_center.repository.InstructorRepository;
-import com.diver.center.diver_center.repository.LicenceRepository;
 import com.diver.center.diver_center.repository.TraineeRepository;
-import jakarta.annotation.Resource;
-import jakarta.transaction.Transactional;
-import net.minidev.json.writer.FakeMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 class InstructorServiceTest {
 
-    @InjectMocks
+    //    @InjectMocks
     private InstructorService instructorService;
 
     @Mock
@@ -42,15 +34,10 @@ class InstructorServiceTest {
     @Mock
     private TraineeRepository traineeRepository;
 
-    @BeforeEach
-    void beforeTest() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        licenceService = Mockito.mock(LicenceService.class);
         instructorService = new InstructorService(instructorRepository, licenceService, traineeRepository);
     }
 
@@ -147,7 +134,7 @@ class InstructorServiceTest {
         long instructorId = 1;
         long licenceId = 2;
         Instructor instructorBeforeUpdate = new Instructor("Marjusz", null, 29, List.of("Rebreather instructorBeforeUpdate", "Wrecks"));
-        Licence licence = new Licence(29290, LocalDate.of(2020, 04, 20), "PADI", "Wrecks instructorBeforeUpdate");
+        Licence licence = new Licence(29290, LocalDate.of(2020, 04, 20), "PADI", "Wrecks instructorBeforeUpdate", null);
         Instructor instructorAfterUpdate = new Instructor("Marjusz", licence, 29, List.of("Rebreather instructorBeforeUpdate", "Wrecks"));
 
         Optional<Instructor> optionalInstructor = Optional.of(instructorBeforeUpdate);
@@ -159,19 +146,55 @@ class InstructorServiceTest {
 
         Optional<Instructor> result = instructorService.setLicence(instructorId, licenceId);
 
-        assertEquals(result.get().getLicence(), licence);
+        verify(instructorRepository, times(1)).findById(instructorId);
+        verify(licenceService, times(1)).getById(licenceId);
+        verify(instructorRepository, times(1)).save(instructorBeforeUpdate);
 
-//        verify(instructorRepository, times(1)).findById(instructorId);
-//        verify(licenceRepository, times(1)).getById(licenceId);
+
+        assertEquals(result.get().getLicence(), licence);
 
     }
 
     @Test
-    void detachLicenceFromInstructor() {
+    void shouldDetachLicenceFromInstructorWhenObjectsProvided() {
+
+        long instructorId = 1;
+        Instructor instructorBeforeSave = new Instructor("Marian", null, 40, List.of("Boat Instructor"));
+        Licence licence = new Licence(012324, LocalDate.of(2019, 1, 1), "CMAS", "Advanced Diver", instructorBeforeSave);
+        instructorBeforeSave.setLicence(licence);
+
+        Instructor instructorAfterSave = new Instructor("Marian", null, 40, List.of("Boat Instructor"));
+
+        Optional<Instructor> optionalInstructorBeforeSave = Optional.of(instructorBeforeSave);
+
+        when(instructorRepository.findById(instructorId)).thenReturn(optionalInstructorBeforeSave);
+        when(instructorRepository.existsById(instructorId)).thenReturn(true);
+        when(instructorRepository.save(instructorBeforeSave)).thenReturn(instructorAfterSave);
+
+        Optional<Instructor> result = instructorService.detachLicenceFromInstructor(instructorId);
+
+        verify(instructorRepository, times(1)).findById(instructorId);
+        verify(instructorRepository, times(1)).existsById(instructorId);
+        verify(instructorRepository, times(1)).save(instructorBeforeSave);
+
+        assertNull(result.get().getLicence());
     }
 
     @Test
     void detachTraineesFromInstructor() {
+        //find
+        //traineeRepository.save
+
+        Trainee trainee = new Trainee("Trainee1", 20, "Female", "English");
+        Trainee trainee2 = new Trainee("Trainee2", 30, "Male", "Polish");
+        List<Trainee> traineesList = List.of(trainee, trainee2);
+        Instructor instructor = new Instructor("Jurek", null, 30, null);
+        instructor.setTrainees(traineesList);
+
+
+
+
+
     }
 
     @Test
