@@ -7,6 +7,7 @@ import com.diver.center.diver_center.repository.InstructorRepository;
 import com.diver.center.diver_center.repository.TraineeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -42,6 +43,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should Save instructor")
     void shouldSaveInstructor() {
         Instructor instructor = new Instructor("Janek", null, 16, List.of("Boat Instructor"));
         when(instructorRepository.save(instructor)).thenReturn(instructor);
@@ -52,6 +54,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should return all Instructors when instructors exists")
     void shouldReturnAllInstructors() {
         List<Instructor> instructors = new ArrayList<>();
         instructors.add(new Instructor("Instructor Test 1", null, 20, null));
@@ -65,6 +68,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should return instructor by Id when instructor exists")
     void shouldReturnInstructorById() {
         long instructorId = 1;
         Instructor instructor = new Instructor("Master Instructor", null, 14, null);
@@ -78,6 +82,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should remove instructor when instructor provided")
     void shouldRemoveInstructorById() {
         long instructorId = 1;
         Instructor instructor = new Instructor("InstructorToDelete", null, 20, null);
@@ -92,6 +97,7 @@ class InstructorServiceTest {
 
 
     @Test
+    @DisplayName("should update instructors name when instructor provided")
     void shouldUpdateInstructorName() {
         long instructorId = 15;
         Instructor instructor = new Instructor("Ronaldo", null, 20, null);
@@ -108,6 +114,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should update instructor when instructor exists")
     void shouldCompleteUpdateInstructor() {
         long instructorId = 3;
         Instructor existingInstructor = new Instructor("Juan Antonio Morales", null, 38, List.of("Cave", "Wrecks"));
@@ -129,6 +136,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should connect licence to instructor when both are provided")
     void shouldSetInstructorLicenceWhenObjectsProvided() {
 
         long instructorId = 1;
@@ -156,6 +164,7 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should detach licence from instructor when both are provided")
     void shouldDetachLicenceFromInstructorWhenObjectsProvided() {
 
         long instructorId = 1;
@@ -181,27 +190,95 @@ class InstructorServiceTest {
     }
 
     @Test
-    void detachTraineesFromInstructor() {
-        //find
-        //traineeRepository.save
+    @DisplayName("should detach only trainees from instructor when trainees and instructor are provided")
+    void detach_Trainees_From_Instructor_when_all_sources_provided() {
+        //given
+        long instructorId = 1;
+        Instructor instructor = new Instructor("John Doe", null, 30, List.of("Wreck"));
 
-        Trainee trainee = new Trainee("Trainee1", 20, "Female", "English");
-        Trainee trainee2 = new Trainee("Trainee2", 30, "Male", "Polish");
-        List<Trainee> traineesList = List.of(trainee, trainee2);
-        Instructor instructor = new Instructor("Jurek", null, 30, null);
+        Trainee trainee1 = new Trainee("Alice Smith", 25, "Female", "English");
+        Trainee traineeAfterSave1 = new Trainee("Alice Smith", 25, "Female", "English");
+        trainee1.setId(1L);
+        traineeAfterSave1.setId(1L);
+        Trainee trainee2 = new Trainee("Bob Johnson", 28, "Male", "Spanish");
+        Trainee traineeAfterSave2 = new Trainee("Bob Johnson", 28, "Male", "Spanish");
+        trainee2.setId(2L);
+        traineeAfterSave2.setId(2L);
+        List<Trainee> traineesList = new ArrayList<>();
+        trainee1.setInstructor(instructor);
+        trainee2.setInstructor(instructor);
+        traineesList.add(trainee1);
+        traineesList.add(trainee2);
         instructor.setTrainees(traineesList);
+        Optional<Instructor> optionalInstructor = Optional.of(instructor);
+
+        when(instructorRepository.findById(instructorId)).thenReturn(optionalInstructor);
+        when(traineeRepository.save(any(Trainee.class))).thenReturn(traineeAfterSave1, traineeAfterSave2);
+
+        Optional<Instructor> result = instructorService.detachTraineesFromInstructor(instructorId);
+
+        verify(instructorRepository, times(1)).findById(instructorId);
+        verify(traineeRepository, times(traineesList.size())).save(any(Trainee.class));
+
+        List<Trainee> resultTraineeList = result.get().getTrainees();
 
 
-
-
-
+        assertTrue(Optional.of(result).isPresent());
+        assertEquals(null, resultTraineeList.get(0).getInstructor());
     }
 
     @Test
-    void querryInstructorFindByName() {
+    @DisplayName("should return all instructors by filtered name when instructors are provided ")
+    void shouldReturnInstructorsByCustomQuerryInstructorFindByName() {
+
+        List<Instructor> instructors = new ArrayList<>();
+        Instructor instructor1 = new Instructor("Marian Gmur", null, 33, List.of("Wreck"));
+        Instructor instructor3 = new Instructor("Marian Dora", null, 47, List.of("Cannabis Trainer"));
+        instructors.add(instructor1);
+        instructors.add(instructor3);
+
+        when(instructorRepository.findAllByNameContaining(anyString())).thenReturn(instructors);
+
+        List<Instructor> instructorsQueryList = instructorService.querryInstructorFindByName("marian");
+
+        verify(instructorRepository).findAllByNameContaining(anyString());
+
+        assertEquals(instructorsQueryList.stream().count(), 2);
+        assertTrue(instructorsQueryList.get(0).getName().toLowerCase().contains("marian"));
     }
 
     @Test
-    void addTraineeToInstructor() {
+    @DisplayName("Should connect trainee to instructor when trainee and instructor are both exists")
+    void shouldAddTraineeToInstructorWhenTraineeAndInstructorExists() {
+        long instructorId = 1;
+        long traineeId = 1;
+        Trainee trainee = new Trainee("Alice Smith", 25, "Female", "English");
+
+        Instructor instructor = new Instructor("Marian Smok", null, 33, List.of("Wreck"));
+
+        List<Trainee> traineeList = List.of(trainee);
+        instructor.setTrainees(traineeList);
+
+        Optional<Instructor> optionalInstructor = Optional.of(instructor);
+        Optional<Trainee> optionalTrainee = Optional.of(trainee);
+
+        when(instructorRepository.existsById(anyLong())).thenReturn(true);
+        when(traineeRepository.existsById(anyLong())).thenReturn(true);
+        when(instructorRepository.findById(anyLong())).thenReturn(optionalInstructor);
+        when(traineeRepository.findById(anyLong())).thenReturn(optionalTrainee);
+        when(traineeRepository.save(trainee)).thenReturn(trainee);
+
+        Instructor result = instructorService.addTraineeToInstructor(instructorId, traineeId);
+
+        verify(instructorRepository, times(1)).existsById(anyLong());
+        verify(traineeRepository, times(1)).existsById(anyLong());
+        verify(instructorRepository, times(1)).findById(anyLong());
+        verify(traineeRepository, times(1)).findById(anyLong());
+        verify(traineeRepository, times(1)).save(trainee);
+
+        assertEquals(result.getTrainees().get(0).getInstructor(), trainee.getInstructor());
+        assertTrue(result.getTrainees().size() == 1);
+        assertTrue(trainee.getInstructor() != null);
+
     }
 }
