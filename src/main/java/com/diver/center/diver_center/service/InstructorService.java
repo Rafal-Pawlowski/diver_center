@@ -1,5 +1,7 @@
 package com.diver.center.diver_center.service;
 
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.GetInstructorException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.SaveInstructorException;
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
 import com.diver.center.diver_center.model.Trainee;
@@ -7,6 +9,7 @@ import com.diver.center.diver_center.repository.InstructorRepository;
 import com.diver.center.diver_center.repository.TraineeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,11 +32,21 @@ public class InstructorService {
     }
 
     public Instructor save(Instructor instructor) {
-        return repository.save(instructor);
+        try {
+            return repository.save(instructor);
+        } catch (DataAccessException e) {
+            LOGGER.error("Failed to save instructor: " + e.getMessage());
+            throw new SaveInstructorException("Failed to save instructor: " + e.getMessage());
+        }
     }
 
     public Iterable<Instructor> getAllInstructors() {
-        return repository.findAll();
+        try{
+            return repository.findAll();
+        } catch (DataAccessException e) {
+            LOGGER.error("Failed to get all instructors: " + e.getMessage());
+            throw new GetInstructorException("Failed to get all instructors: " + e.getMessage());
+        }
     }
 
     public Optional<Instructor> getInstructorById(long id) {
