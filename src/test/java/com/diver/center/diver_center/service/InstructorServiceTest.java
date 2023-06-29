@@ -1,5 +1,9 @@
 package com.diver.center.diver_center.service;
 
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.DeleteEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.GetEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.NoExistingEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.SaveEntityException;
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
 import com.diver.center.diver_center.model.Trainee;
@@ -17,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -54,6 +60,16 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should throw SaveInstructorException when save instructor")
+    void save_WhenDataAccessException_ShouldThrowSaveInstructorException() {
+
+        Instructor instructor = new Instructor();
+        when(instructorRepository.save(any(Instructor.class))).thenThrow(SaveEntityException.class);
+        assertThrows(SaveEntityException.class, () -> instructorService.save(instructor));
+    }
+
+
+    @Test
     @DisplayName("should return all Instructors when instructors exists")
     void shouldReturnAllInstructors() {
         List<Instructor> instructors = new ArrayList<>();
@@ -66,6 +82,16 @@ class InstructorServiceTest {
 
         assertEquals(instructors, result);
     }
+
+    @Test
+    @DisplayName("should throw GetInstructorException when getting All instructors")
+    void shouldThrowGetInstructorExceptionWhileGettingAllInstructors() {
+        List<Instructor> instructors = new ArrayList<>();
+        when(instructorRepository.findAll()).thenThrow(GetEntityException.class);
+
+        assertThrows(GetEntityException.class, () -> instructorService.getAllInstructors());
+    }
+
 
     @Test
     @DisplayName("should return instructor by Id when instructor exists")
@@ -82,6 +108,18 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should throw GetInstructorException when getting instructor By Id")
+    void shouldThrowGetInstructorExceptionWhenGettingInstructorById() {
+        long instructorId = 1;
+
+        when(instructorRepository.findById(anyLong())).thenThrow(GetEntityException.class);
+
+        assertThrows(GetEntityException.class, () -> instructorService.getInstructorById(instructorId));
+
+        verify(instructorRepository, times(1)).findById(instructorId);
+    }
+
+    @Test
     @DisplayName("should remove instructor when instructor provided")
     void shouldRemoveInstructorById() {
         long instructorId = 1;
@@ -93,6 +131,16 @@ class InstructorServiceTest {
 
         instructorService.removeById(instructorId);
         verify(instructorRepository, times(1)).deleteById(instructorId);
+    }
+
+    @Test
+    @DisplayName("should throw DeleteInstructorException when removing instructor by id")
+    void shouldThrowDeleteInstructorExceptionWhenRemoving() {
+        long instructorId = 1;
+
+        doThrow(DeleteEntityException.class).when(instructorRepository).deleteById(instructorId);
+
+        assertThrows(DeleteEntityException.class, () -> instructorService.removeById(instructorId));
     }
 
 
@@ -111,6 +159,32 @@ class InstructorServiceTest {
         String updatedName = updatedOptionalInstructor.map(Instructor::getName).orElse(null);
 
         Assertions.assertEquals("Andrzej Zmienny", updatedName);
+    }
+
+    @Test
+    @DisplayName("should throw NoExistingInstructorException when updating name by id when there is no existing instructor on this id")
+    void shouldThrowNoExistingInstructorExceptionWhenUpdatingNameWhenInstructorDoesNotExist() {
+        long instructorId = 1;
+
+        when(instructorRepository.findById(instructorId)).thenReturn(Optional.empty());
+
+        assertThrows(NoExistingEntityException.class, () -> instructorService.update(instructorId, "Andrzej"));
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when updating instructor name and no name provided")
+    void shouldThrowIllegalArgumentExceptionWhenUpdatingNameAndNoNameProvided() {
+        String instructorName = "AD";
+        long instructorId = 1;
+
+        var exception = catchThrowable(() -> instructorService.update(instructorId, instructorName));
+
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("no name to update");
+
+        assertThrows(IllegalArgumentException.class, () -> instructorService.update(instructorId, instructorName));
+
     }
 
     @Test
@@ -136,6 +210,31 @@ class InstructorServiceTest {
     }
 
     @Test
+    @DisplayName("should return Optional.empty when completeUpdate and no instructor provided on selected ID")
+    void shouldReturnOptionalEmptyWhenCompleteUpdateAndNoInstructorProvidedOnSelectedId() {
+        Instructor instructorToUpdate = new Instructor("Juan Antonio Morales", null, 38, List.of("Cave", "Wrecks"));
+        long instructorId = 1;
+
+        when(instructorRepository.findById(instructorId)).thenReturn(Optional.empty());
+
+        Optional<Instructor> result = instructorService.completeUpdate(instructorId, instructorToUpdate);
+
+        verify(instructorRepository, times(1)).findById(instructorId);
+
+        assertEquals(Optional.empty(), result);
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when Complete Update and instructor without name is provided")
+    void shouldThrowIllegalArgumentExceptionWhenCompleteUpdateAndInstructorWithoutNameIsProvided() {
+        Instructor instructorToUpdate = new Instructor(null, null, 38, List.of("Cave", "Wrecks"));
+        long instructorId = 1;
+
+        assertThrows(IllegalArgumentException.class, ()-> instructorService.completeUpdate(instructorId, instructorToUpdate));
+
+    }
+
+    @Test
     @DisplayName("should connect licence to instructor when both are provided")
     void shouldSetInstructorLicenceWhenObjectsProvided() {
 
@@ -158,10 +257,10 @@ class InstructorServiceTest {
         verify(licenceService, times(1)).getById(licenceId);
         verify(instructorRepository, times(1)).save(instructorBeforeUpdate);
 
-
         assertEquals(result.get().getLicence(), licence);
 
     }
+    //TODO FAILURE TEST CONNECTING LICENCE
 
     @Test
     @DisplayName("should detach licence from instructor when both are provided")
@@ -189,6 +288,7 @@ class InstructorServiceTest {
         assertNull(result.get().getLicence());
     }
 
+    //TODO FAILURE TEST DISCONECT LICENCE
     @Test
     @DisplayName("should detach only trainees from instructor when trainees and instructor are provided")
     void detach_Trainees_From_Instructor_when_all_sources_provided() {
@@ -227,6 +327,8 @@ class InstructorServiceTest {
         assertEquals(null, resultTraineeList.get(0).getInstructor());
     }
 
+    // TODO DETACH TRAINEES FAILURE TEST
+
     @Test
     @DisplayName("should return all instructors by filtered name when instructors are provided ")
     void shouldReturnInstructorsByCustomQuerryInstructorFindByName() {
@@ -247,6 +349,7 @@ class InstructorServiceTest {
         assertTrue(instructorsQueryList.get(0).getName().toLowerCase().contains("marian"));
     }
 
+    // TODO FAILURE TEST QYSTOMQUERY
     @Test
     @DisplayName("Should connect trainee to instructor when trainee and instructor are both exists")
     void shouldAddTraineeToInstructorWhenTraineeAndInstructorExists() {
@@ -281,4 +384,6 @@ class InstructorServiceTest {
         assertTrue(trainee.getInstructor() != null);
 
     }
+
+    //TODO ADD TRAINEES FAILURE TEST
 }

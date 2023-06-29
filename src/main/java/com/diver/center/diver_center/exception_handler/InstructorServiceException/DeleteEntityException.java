@@ -2,8 +2,8 @@ package com.diver.center.diver_center.exception_handler.InstructorServiceExcepti
 
 import org.springframework.dao.DataAccessException;
 
-public class GetInstructorException extends DataAccessException {
-    public GetInstructorException(String msg) {
+public class DeleteEntityException extends DataAccessException {
+    public DeleteEntityException(String msg) {
         super(msg);
     }
 }

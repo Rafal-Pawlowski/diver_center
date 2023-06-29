@@ -1,7 +1,9 @@
 package com.diver.center.diver_center.service;
 
-import com.diver.center.diver_center.exception_handler.InstructorServiceException.GetInstructorException;
-import com.diver.center.diver_center.exception_handler.InstructorServiceException.SaveInstructorException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.DeleteEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.GetEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.NoExistingEntityException;
+import com.diver.center.diver_center.exception_handler.InstructorServiceException.SaveEntityException;
 import com.diver.center.diver_center.model.Instructor;
 import com.diver.center.diver_center.model.Licence;
 import com.diver.center.diver_center.model.Trainee;
@@ -36,48 +38,70 @@ public class InstructorService {
             return repository.save(instructor);
         } catch (DataAccessException e) {
             LOGGER.error("Failed to save instructor: " + e.getMessage());
-            throw new SaveInstructorException("Failed to save instructor: " + e.getMessage());
+            throw new SaveEntityException("Failed to save instructor: " + e.getMessage());
         }
     }
 
     public Iterable<Instructor> getAllInstructors() {
-        try{
+        try {
             return repository.findAll();
         } catch (DataAccessException e) {
             LOGGER.error("Failed to get all instructors: " + e.getMessage());
-            throw new GetInstructorException("Failed to get all instructors: " + e.getMessage());
+            throw new GetEntityException("Failed to get all instructors: " + e.getMessage());
         }
     }
 
     public Optional<Instructor> getInstructorById(long id) {
-        return repository.findById(id);
+        try {
+            return repository.findById(id);
+        } catch (DataAccessException e) {
+            LOGGER.error("Failed to get instructor by id: " + e.getMessage());
+            throw new GetEntityException("Failed to get instructor by id: " + e.getMessage());
+        }
     }
 
     public void removeById(long id) {
-        repository.deleteById(id);
+        try {
+            repository.deleteById(id);
+        } catch (DataAccessException e) {
+            LOGGER.error("failed to delete instructor: " + e.getMessage());
+            throw new DeleteEntityException("Failed to remove instructor: " + e.getMessage());
+        }
     }
 
     public Instructor update(long id, String nameInstructor) {
-        Optional<Instructor> optionalInstructor = repository.findById(id);
-        if (optionalInstructor.isPresent()) {
-            Instructor existingInstructor = optionalInstructor.get();
-            existingInstructor.setName(nameInstructor);
-            return repository.save(existingInstructor);
+        if (nameInstructor.length() >= 3) {
+            Optional<Instructor> optionalInstructor = repository.findById(id);
+            if (optionalInstructor.isPresent()) {
+                Instructor existingInstructor = optionalInstructor.get();
+                existingInstructor.setName(nameInstructor);
+                return repository.save(existingInstructor);
+            } else {
+                LOGGER.error("Failed to update because there is no existing instructor with ID: " + id);
+                throw new NoExistingEntityException("Failed to update because there is no existing instructor with ID: " + id);
+            }
+        } else {
+            LOGGER.error("Failed to update instructor name because there is no name to update. Name supposed to be min 3 letters: " + nameInstructor);
+            throw new IllegalArgumentException("Failed to update instructor because there is no name to update. Name should be min 3 letters: " + nameInstructor);
         }
-        return null;
     }
 
+
     public Optional<Instructor> completeUpdate(long id, Instructor updatedInstructor) {
-        Optional<Instructor> optionalInstructor = repository.findById(id);
-        if (optionalInstructor.isPresent()) {
-            Instructor existingInstructor = optionalInstructor.get();
-            existingInstructor.setName(updatedInstructor.getName());
-            existingInstructor.setLicence(updatedInstructor.getLicence());
-            existingInstructor.setAge(updatedInstructor.getAge());
-            existingInstructor.setTrainingType(updatedInstructor.getTrainingType());
-            return Optional.of(repository.save(existingInstructor));
+        if (updatedInstructor.getName()!=null) {
+            Optional<Instructor> optionalInstructor = repository.findById(id);
+            if (optionalInstructor.isPresent()) {
+                Instructor existingInstructor = optionalInstructor.get();
+                existingInstructor.setName(updatedInstructor.getName());
+                existingInstructor.setLicence(updatedInstructor.getLicence());
+                existingInstructor.setAge(updatedInstructor.getAge());
+                existingInstructor.setTrainingType(updatedInstructor.getTrainingType());
+                return Optional.of(repository.save(existingInstructor));
+            }
+            return Optional.empty();
         }
-        return Optional.empty(); //najlepiej żeby nie zwracać null, drugie rozwiązanie wyjątek
+        LOGGER.error("No instructor to update provided. Instructor supposed to have name");
+        throw new IllegalArgumentException("No instructor to update provided. Instructor supposed to have name");
     }
 
     public Optional<Instructor> setLicence(long instructorId, long licenceId) {

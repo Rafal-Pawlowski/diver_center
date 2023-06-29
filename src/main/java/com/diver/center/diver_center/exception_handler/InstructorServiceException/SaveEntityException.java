@@ -2,8 +2,8 @@ package com.diver.center.diver_center.exception_handler.InstructorServiceExcepti
 
 import org.springframework.dao.DataAccessException;
 
-public class SaveInstructorException extends DataAccessException {
-    public SaveInstructorException(String msg) {
+public class SaveEntityException extends DataAccessException {
+    public SaveEntityException(String msg) {
         super(msg);
     }
 }
